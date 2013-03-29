@@ -15,12 +15,14 @@ class Crontab
     /**
      * Variables and there defaults
      */
-    private $minute = "00";
-    private $hour = "23";
+    private $minute = "*";
+    private $hour = "*";
     private $dayOfMonth = "*";
     private $month = "*";
     private $dayOfWeek = "*";
+
     private $tempFile = "jobs.txt";
+    private $logFile = "/dev/null 2>&1"; // Log nothing by default
 
     public function __construct(array $config = array())
     {
@@ -39,6 +41,8 @@ class Crontab
         // Done
         return true;
     }
+
+
 
     public function setMinute($data)
     {
@@ -70,6 +74,27 @@ class Crontab
         $this->tempFile = $data;
     }
 
+    public function setLogFile($data)
+    {
+        // Check for the file and attempt to create it
+        if( ! file_exists($data)){
+
+            $fh = fopen($data, 'a') and fclose($fh);
+
+            // Check again
+            if( ! file_exists($data)){
+                throw new \Exception("Could not create logfile");
+            }
+        }
+
+        // Ok
+        $this->logFile = $data;
+        return true;
+    }
+
+
+
+
     public function minuteFromNow($min = 1)
     {
         $time = strtotime("+$min minute");
@@ -78,8 +103,19 @@ class Crontab
         $this->setDayOfMonth(date('j', $time));
         $this->setMonth(date('n', $time));
         $this->setDayOfWeek(date('w', $time));
-        $this->setCommand("date > /dev/null");
     }
+
+    public function everyMinute()
+    {
+        $this->setMinute("*");
+        $this->setHour("*");
+        $this->setDayOfMonth("*");
+        $this->setMonth("*");
+        $this->setDayOfWeek("*");
+    }
+
+
+
 
     /**
      * Ads a cronjob command to the system
@@ -152,7 +188,12 @@ class Crontab
         $this->writeTmpCronFile($this->update);
 
         // Set cron to temp cronfile
-        exec("crontab jobs.txt 2>&1 >> log.txt", $output, $status);
+        exec("crontab " . $this->tempFile, $output, $status);
+        //exec("crontab " . $this->tempFile . " 2>&1 >> log.txt", $output, $status);
+
+        if(count($output) > 0){
+            print_r($output);
+        }
 
         // Done
         return true;
@@ -165,18 +206,23 @@ class Crontab
      */
     private function buildCommandLine($command)
     {
-        // Build time
-        $time = implode(" ", array(
-                $this->minute,
-                $this->hour,
-                $this->dayOfMonth,
-                $this->month,
-                $this->dayOfWeek
-            )
+        // Build command line time
+        $time = array(
+            $this->minute,
+            $this->hour,
+            $this->dayOfMonth,
+            $this->month,
+            $this->dayOfWeek
         );
+        $line = implode(" ", $time) . " " . trim($command) . " > " . $this->logFile . " 2>&1";
 
-        // Build single command line row
-        return $time . " " . trim($command);
+        // Check the command
+        if( preg_match("/".$this->buildRegexp()."/", $line) !== 0 ){
+            return $line;
+        }
+
+        // Exit if no good.
+        throw new \Exception("$line is not a valid command");
     }
 
     /**
@@ -230,7 +276,7 @@ class Crontab
             foreach($content as $k => $v){
                 $string[] = trim($v);
             }
-            $string = implode(PHP_EOL, $string);
+            $string = implode(PHP_EOL, $string).PHP_EOL;
         }
 
         // Set temp file
@@ -254,12 +300,47 @@ class Crontab
     }
 
     /**
+     * Builds a regular expression to check the cronjob
+     * Thanks to Jordi Salvat
+     */
+    private function buildRegexp()
+    {
+        $numbers= array(
+            'min'=>'[0-5]?\d',
+            'hour'=>'[01]?\d|2[0-3]',
+            'day'=>'0?[1-9]|[12]\d|3[01]',
+            'month'=>'[1-9]|1[012]',
+            'dow'=>'[0-7]'
+        );
+
+        foreach($numbers as $field=>$number) {
+            $range= "($number)(-($number)(\/\d+)?)?";
+            $field_re[$field]= "\*(\/\d+)?|$range(,$range)*";
+        }
+
+        $field_re['month'].='|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec';
+        $field_re['dow'].='|mon|tue|wed|thu|fri|sat|sun';
+
+        $fields_re= '('.join(')\s+(', $field_re).')';
+
+        $replacements= '@reboot|@yearly|@annually|@monthly|@weekly|@daily|@midnight|@hourly';
+
+        return '^\s*('.
+                '$'.
+                '|#'.
+                '|\w+\s*='.
+                "|$fields_re\s+\S".
+                "|($replacements)\s+\S".
+            ')';
+    }
+
+    /**
      * Clean up
      */
     public function __destruct()
     {
         if(file_exists($this->tempFile)){
-            //exec("rm jobs.txt");
+            exec("rm " . $this->tempFile);
         }
     }
 }
