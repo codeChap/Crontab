@@ -28,10 +28,9 @@ Use [composer](http://getcomposer.org) to install it or simply include the file 
             )
         );
     $commandsList = $cron->execute();
-
 ```
 
-### Methods
+## Methods
 
 #### append($command)
 
@@ -48,7 +47,6 @@ Parameters: $command : String or array of commands.
   $cron->setDayOfWeek("*");
   $cron->append("date");
   $cron->execute();
-
 ```
 
 #### remove($command)
@@ -66,7 +64,6 @@ Parameters: $command : String or array of commands
   $cron->setDayOfWeek("*");
   $cron->remove("date");
   $cron->execute();
-
 ```
 
 #### getJobs()
@@ -82,20 +79,18 @@ Return a current list of jobs with there hashed keys
   $cron->setDayOfWeek("*");
   $cron->remove("date");
   $cron->execute();
-
 ```
 
 #### removeByKey($key)
 
 Removes a job from the current cronjob list by the hash key generated from the previous command.
 
-Parameters: $command : String or array of commands
+Parameters: $key : String or array of keys
 
 ```
   $cron = new \Crontab\Crontab();
   $cron->removeByKey("1231231231231231231");
   $cron->execute();
-
 ```
 
 #### execute()
@@ -110,7 +105,6 @@ Applies and writes the new cronjob list.
     $cron->setDayOfWeek("*");
     $cron->append("date");
     $cron->execute();
-
 ```
 
 #### clear()
@@ -120,7 +114,6 @@ Simply removes all running jobs by executing crontab -r
 ```
   $cron = new \Crontab\Crontab();
   $cron->clear();
-
 ```
 
 ### Settings

@@ -107,7 +107,9 @@ class Crontab
 
 
 
-
+    /**
+     * Helper function to execute so many minutes from now
+     */
     public function minuteFromNow($min = 1)
     {
         $time = strtotime("+$min minute");
@@ -116,15 +118,6 @@ class Crontab
         $this->setDayOfMonth(date('j', $time));
         $this->setMonth(date('n', $time));
         $this->setDayOfWeek(date('w', $time));
-    }
-
-    public function everyMinute()
-    {
-        $this->setMinute("*");
-        $this->setHour("*");
-        $this->setDayOfMonth("*");
-        $this->setMonth("*");
-        $this->setDayOfWeek("*");
     }
 
 
