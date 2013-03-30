@@ -206,6 +206,14 @@ class Crontab
     }
 
     /**
+     * Returns an array of running jobs
+     */
+    public function getJobs()
+    {
+        return $this->buildExistingJobsArray();
+    }
+
+    /**
      * Removes all cronjobs
      */
     public function clear()
