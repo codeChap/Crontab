@@ -5,8 +5,8 @@ Simple, independant and local PHP Crontab package
 
 The package helps you manage your local cron jobs using PHP. You can list, append and remove your jobs and set your log file.
 
-## Requirements:
-Should work on monst Linux flavoured systems. (I have yet to test on windows)
+## Requirements
+Should work on monst Linux flavoured systems.
 
 ## Usage Example
 Use [composer](http://getcomposer.org) to install it or simply include the file somewhere: require("crontab/src/Crontab/Crontab.php");
