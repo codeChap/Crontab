@@ -71,7 +71,20 @@ class Crontab
 
     public function setTempFile($data)
     {
+        // Check for the file and attempt to create it
+        if( ! file_exists($data)){
+
+            if($fh = fopen($data, 'a')){
+                fclose($fh);
+                return true;
+            }
+
+            throw new \Exception("Could not create temp file: $data");
+        }
+
+        // Ok
         $this->tempFile = $data;
+        return true;
     }
 
     public function setLogFile($data)
@@ -79,12 +92,12 @@ class Crontab
         // Check for the file and attempt to create it
         if( ! file_exists($data)){
 
-            $fh = fopen($data, 'a') and fclose($fh);
-
-            // Check again
-            if( ! file_exists($data)){
-                throw new \Exception("Could not create logfile");
+            if($fh = fopen($data, 'a')){
+                fclose($fh);
+                return true;
             }
+
+            throw new \Exception("Could not create log file: $data");
         }
 
         // Ok
@@ -140,7 +153,7 @@ class Crontab
 
     /**
      * Removes a cronjob command from the system
-     * @param command to remove
+     * @param commands to remove
      */
     public function remove($command)
     {
@@ -170,6 +183,29 @@ class Crontab
     }
 
     /**
+     * Removes a cronjob command from the system by its unique hash
+     * @param key hashs to remove
+     */
+    public function removeByKey($hash)
+    {
+        // Convert to array
+        $hash = is_string($hash) ? array($hash) : $hash;
+
+        // Get existing jobs
+        $jobs = $this->buildExistingJobsArray();
+
+        // Loop to find and remove jobs
+        foreach($hash as $k => $v){
+            if(array_key_exists($v, $jobs)){
+                unset($jobs[$v]);
+            }
+        }
+
+        // Update Jobs
+        $this->update = $jobs;
+    }
+
+    /**
      * Removes all cronjobs
      */
     public function clear()
@@ -180,7 +216,7 @@ class Crontab
     /**
      * Update the systems contab file with
      * @param jobs array
-     * @return boolean
+     * @return array of current cron jobs
      */
     public function execute()
     {
@@ -195,8 +231,8 @@ class Crontab
             print_r($output);
         }
 
-        // Done
-        return true;
+        // Return list of current jobs
+        return $this->update;
     }
 
     /**
@@ -238,7 +274,7 @@ class Crontab
         // Clean up contab array just incase
         if(count($output) > 0){
             foreach($output as $k => $v){
-                $array[] = trim($v);
+                $array[md5($v)] = trim($v);
             }
         }
 
@@ -250,7 +286,7 @@ class Crontab
 
             // Append to exisiting array or new array
             foreach($append as $k => $v){
-                $array[] = trim($v);
+                $array[md5($v)] = trim($v);
             }
         }
 
