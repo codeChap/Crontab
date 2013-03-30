@@ -153,8 +153,9 @@ A Google search should provied plenty of links but check out: [Kevin van Zonneve
 
 ## Todo
 
- - [] Email instead of log or both.
- - [] Build in more heler functions.
+ - Email instead of log or both.
+ - Build in more heler functions.
+ - Unit tests
 
 ## Disclaimer
 Use this library at your own risk.
