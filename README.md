@@ -121,7 +121,7 @@ Settings can also be applied to the constuct method like so:
 		'logFile' => 'log.txt',
 		'tmpFile' => 'jobs.txt'
 	);
-    
+
     $cron = new \Crontab\Crontab($conf);
 ```
 
@@ -150,6 +150,11 @@ Execute this job in 5 minutes from now.
 
 ## Help understanding cronjobs
 A Google search should provied plenty of links but check out: [Kevin van Zonneveld's blog](http://kvz.io/blog/2007/07/29/schedule-tasks-on-linux-using-crontab/) if you need help.
-    
+
+## Todo
+
+ - [] Email instead of log or both.
+ - [] Build in more heler functions.
+
 ## Disclaimer
 Use this library at your own risk.
