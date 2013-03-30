@@ -114,7 +114,7 @@ Settings can also be applied to the constuct method like so:
 ```php
     $conf = array(
 		'minute' => '*',
-		'hour' => '*'
+		'hour' => '*',
 		'dayOfMonth' => '*',
 		'month' => '*',
 		'dayOfWeek' => '*',
