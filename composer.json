@@ -1,5 +1,5 @@
 {
-    "name": "codechap/crontab",
+    "name": "codeChap/crontab",
     "type": "library",
     "description": "PHP Cronjob manager",
     "keywords": ["crontab", "cronjob", "cron"],
