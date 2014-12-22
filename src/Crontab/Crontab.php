@@ -76,10 +76,11 @@ class Crontab
 
             if($fh = fopen($data, 'a')){
                 fclose($fh);
+                $this->tempFile = $data;
                 return true;
+            } else {
+                throw new \Exception("Could not create temp file: $data");
             }
-
-            throw new \Exception("Could not create temp file: $data");
         }
 
         // Ok
@@ -94,10 +95,11 @@ class Crontab
 
             if($fh = fopen($data, 'a')){
                 fclose($fh);
+                $this->logFile = $data;
                 return true;
+            } else {
+                throw new \Exception("Could not create log file: $data");
             }
-
-            throw new \Exception("Could not create log file: $data");
         }
 
         // Ok
